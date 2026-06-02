@@ -1,5 +1,4 @@
 name: flutter_sanity_portable_text
-resolution: workspace
 version: 1.8.1
 description: |
   Flutter renderer for the Sanity.io Portable Text format with support for 
