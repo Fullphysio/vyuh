@@ -88,6 +88,10 @@ final class PortableTextConfig {
   /// intentionally differs from `ThemeData.copyWith` (which replaces whole fields) because
   /// these maps are additive registries, so the common case is overriding a single key while
   /// keeping the others.
+  ///
+  /// Note: overriding [markDefs] here affects mark *rendering/styling* only. It does not change
+  /// which custom deserializer runs at JSON-parse time — that always reads the context-free
+  /// [shared] registry (see `_markDefsFromJson`).
   PortableTextConfig copyWith({
     final Map<String, TextStyleBuilder>? styles,
     final Map<String, BlockWidgetBuilder>? blocks,

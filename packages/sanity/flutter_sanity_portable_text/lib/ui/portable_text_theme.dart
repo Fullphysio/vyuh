@@ -42,7 +42,7 @@ class PortableTextTheme extends InheritedWidget {
 ///
 /// The inherited builder is captured internally, so referencing the same style name does
 /// not recurse. Everything else (blocks, marks, spacing, parsing) is inherited unchanged.
-class PortableTextStyleOverride extends StatelessWidget {
+class PortableTextStyleOverride extends StatefulWidget {
   /// Per-style transforms applied on top of the inherited resolved style. Keys are style
   /// names (`'normal'`, `'h2'`, …); a key that the ambient config does not define is ignored.
   final Map<String, TextStyle Function(TextStyle)> styles;
@@ -57,17 +57,39 @@ class PortableTextStyleOverride extends StatelessWidget {
   });
 
   @override
+  State<PortableTextStyleOverride> createState() =>
+      _PortableTextStyleOverrideState();
+}
+
+class _PortableTextStyleOverrideState extends State<PortableTextStyleOverride> {
+  PortableTextConfig? _base;
+  Map<String, TextStyle Function(TextStyle)>? _styles;
+  PortableTextConfig? _derived;
+
+  @override
   Widget build(final BuildContext context) {
     final base = PortableTextConfig.of(context);
-    final wrapped = <String, TextStyleBuilder>{
-      for (final entry in styles.entries)
-        if (base.styles[entry.key] case final builder?)
-          entry.key: (final ctx, final inherited) =>
-              entry.value(builder(ctx, inherited)),
-    };
+
+    // Recompute (and mint a new config) only when the inherited config or the
+    // override map actually changes. Otherwise the derived config stays
+    // identity-stable, so [PortableTextTheme.updateShouldNotify] returns false
+    // and descendants don't rebuild on every ancestor rebuild.
+    if (!identical(base, _base) || !identical(widget.styles, _styles)) {
+      _base = base;
+      _styles = widget.styles;
+
+      final wrapped = <String, TextStyleBuilder>{
+        for (final entry in widget.styles.entries)
+          if (base.styles[entry.key] case final builder?)
+            entry.key: (final ctx, final inherited) =>
+                entry.value(builder(ctx, inherited)),
+      };
+      _derived = base.copyWith(styles: wrapped);
+    }
+
     return PortableTextTheme(
-      config: base.copyWith(styles: wrapped),
-      child: child,
+      config: _derived!,
+      child: widget.child,
     );
   }
 }
