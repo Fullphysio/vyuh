@@ -44,7 +44,7 @@ Widget defaultListBuilder(
     shrinkWrap: shrinkwrap,
     itemCount: blocks.length,
     padding: EdgeInsets.zero,
-    itemBuilder: (final context, final index) =>
-        PortableTextConfig.of(context).buildBlock(context, blocks[index]),
+    itemBuilder: (final context, final index) => PortableTextConfig.of(context)
+        .buildBlock(context, blocks[index], index),
   );
 }
