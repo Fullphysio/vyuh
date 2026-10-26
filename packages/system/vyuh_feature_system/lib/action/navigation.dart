@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:vyuh_core/vyuh_core.dart' as vc;
 import 'package:vyuh_core/vyuh_core.dart';
 import 'package:vyuh_extension_content/vyuh_extension_content.dart';
@@ -41,7 +41,7 @@ enum LinkType { url, route }
 /// // Navigate to a CMS route
 /// final action = NavigationAction(
 ///   linkType: LinkType.route,
-///   route: ObjectReference('route-id'),
+///   route: ObjectReference(type: 'reference', ref: 'route-id'),
 ///   navigationType: NavigationType.replace,
 /// );
 ///
@@ -79,12 +79,22 @@ final class NavigationAction extends ActionConfiguration {
       _$NavigationActionFromJson(json);
 
   @override
-  void execute(BuildContext context, {Map<String, dynamic>? arguments}) async {
-    assert(url != null || route != null, 'One of url or route must be set.');
-
-    if (linkType == LinkType.route && route != null) {
-      _performNavigation(context, routeId: route!.ref);
+  Future<void> execute(
+    BuildContext context, {
+    Map<String, dynamic>? arguments,
+  }) async {
+    if (linkType == LinkType.route) {
+      if (route == null || route!.ref.trim().isEmpty) {
+        throw ArgumentError(
+          'A route reference is required for route navigation.',
+        );
+      }
+      await _performNavigation(context, routeId: route!.ref);
       return;
+    }
+
+    if (url == null || url!.trim().isEmpty) {
+      throw ArgumentError('A URL is required for URL navigation.');
     }
 
     final uri = Uri.parse(url!);
@@ -103,20 +113,26 @@ final class NavigationAction extends ActionConfiguration {
       return;
     }
 
-    _performNavigation(context, uri: uri);
+    await _performNavigation(context, uri: uri);
   }
 
-  Future<void> _performNavigation(BuildContext context,
-      {Uri? uri, String? routeId}) async {
+  Future<void> _performNavigation(
+    BuildContext context, {
+    Uri? uri,
+    String? routeId,
+  }) async {
     final state = Overlay.of(context);
     final entry = OverlayEntry(
-        builder: (_) => VyuhBinding.instance.widgetBuilder
-            .routeLoader(context, uri, routeId));
+      builder: (_) =>
+          VyuhBinding.instance.widgetBuilder.routeLoader(context, uri, routeId),
+    );
     state.insert(entry);
 
     try {
-      final route = await VyuhBinding.instance.content.provider
-          .fetchRoute(path: uri?.toString(), routeId: routeId);
+      final route = await VyuhBinding.instance.content.provider.fetchRoute(
+        path: uri?.toString(),
+        routeId: routeId,
+      );
       if (!context.mounted) {
         return;
       }
@@ -124,7 +140,8 @@ final class NavigationAction extends ActionConfiguration {
       final path = route?.path;
       if (path == null) {
         throw ArgumentError(
-            'Unable to determine path from route. Tried with uri: ${uri.toString()}, routeId: $routeId');
+          'Unable to determine path from route. Tried with uri: ${uri.toString()}, routeId: $routeId',
+        );
       }
 
       if (!context.mounted) {

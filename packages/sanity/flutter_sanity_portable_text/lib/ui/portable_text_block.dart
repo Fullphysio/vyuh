@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../flutter_sanity_portable_text.dart';
 
@@ -38,13 +38,15 @@ class PortableTextBlock extends StatelessWidget {
       ),
     );
 
-    final builder = config.blockContainers[model.style] ??
+    final builder =
+        config.blockContainers[model.style] ??
         PortableTextConfig.defaultBlockContainerBuilder;
 
     final child = builder(context, content, index);
 
-    final leftPadding =
-        model.listItem == null ? 0.0 : config.listIndent * (model.level ?? 0);
+    final leftPadding = model.listItem == null
+        ? 0.0
+        : config.listIndent * (model.level ?? 0);
 
     return Padding(
       padding: config.itemPadding.add(EdgeInsets.only(left: leftPadding)),
@@ -60,7 +62,8 @@ class PortableTextBlock extends StatelessWidget {
     final config = PortableTextConfig.shared;
 
     // Step 1: Start with the base style
-    final baseStyle = config.baseStyle(context) ??
+    final baseStyle =
+        config.baseStyle(context) ??
         PortableTextConfig.defaultBaseStyle(context)!;
 
     final styleBuilder = config.styles[model.style];
@@ -83,8 +86,9 @@ class PortableTextBlock extends StatelessWidget {
       }
 
       /// Custom marks (aka annotations)
-      final markDef = model.markDefs
-          .firstWhereOrNull((final element) => element.key == mark);
+      final markDef = model.markDefs.firstWhereOrNull(
+        (final element) => element.key == mark,
+      );
 
       // A custom mark exists on this span but no corresponding markDef was found
       if (markDef == null) {
@@ -110,8 +114,12 @@ class PortableTextBlock extends StatelessWidget {
 
     for (final markDef in pendingMarkDefs) {
       final descriptor = config.markDefs[markDef.type];
-      inlineSpan =
-          descriptor?.spanBuilder?.call(context, markDef, span.text, style);
+      inlineSpan = descriptor?.spanBuilder?.call(
+        context,
+        markDef,
+        span.text,
+        style,
+      );
 
       if (inlineSpan == null) {
         continue;
@@ -134,10 +142,7 @@ You can rely on TextStyles instead for custom styling.''');
 
   WidgetSpan _errorSpan(final String message, {final bool asBlock = true}) {
     return WidgetSpan(
-      child: ErrorView(
-        message: message,
-        asBlock: asBlock,
-      ),
+      child: ErrorView(message: message, asBlock: asBlock),
     );
   }
 }

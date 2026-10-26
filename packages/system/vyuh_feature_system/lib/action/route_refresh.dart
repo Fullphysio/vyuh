@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:vyuh_core/vyuh_core.dart';
 import 'package:vyuh_extension_content/vyuh_extension_content.dart';
 
@@ -14,17 +14,18 @@ final class RouteRefreshAction extends ActionConfiguration {
     fromJson: RouteRefreshAction.fromJson,
   );
 
-  RouteRefreshAction({
-    super.title,
-    super.isAwaited,
-  }) : super(schemaType: schemaName);
+  RouteRefreshAction({super.title, super.isAwaited})
+    : super(schemaType: schemaName);
 
   factory RouteRefreshAction.fromJson(Map<String, dynamic> json) =>
       _$RouteRefreshActionFromJson(json);
 
   @override
-  void execute(BuildContext context, {Map<String, dynamic>? arguments}) async {
+  Future<void> execute(
+    BuildContext context, {
+    Map<String, dynamic>? arguments,
+  }) async {
     final routeProxy = RouteBuilderProxy.of(context);
-    return routeProxy?.refresh();
+    await routeProxy?.refresh();
   }
 }

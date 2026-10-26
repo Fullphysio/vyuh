@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:vyuh_core/vyuh_core.dart';
 import 'package:vyuh_extension_content/vyuh_extension_content.dart';
 import 'package:vyuh_widgetbook/ui/no_preview_card.dart';
@@ -28,7 +28,8 @@ final class WidgetBookShell extends StatelessWidget {
           ),
       ],
       addons: [
-        MaterialThemeAddon(
+        ThemeAddon<ThemeData>(
+          themeBuilder: (_, theme, child) => Theme(data: theme, child: child),
           themes: [
             WidgetbookTheme(
               name: 'Light',
@@ -50,8 +51,9 @@ final class WidgetBookShell extends StatelessWidget {
 
   List<WidgetbookComponent> _buildContentComponents(FeatureDescriptor feature) {
     final builders = vyuh.content.contentBuilders() ?? [];
-    final featureBuilders =
-        builders.where((b) => b.sourceFeature == feature.name).toList();
+    final featureBuilders = builders
+        .where((b) => b.sourceFeature == feature.name)
+        .toList();
 
     return [
       for (final builder in featureBuilders)
@@ -67,10 +69,8 @@ final class WidgetBookShell extends StatelessWidget {
       for (final layout in builder.layouts)
         WidgetbookUseCase(
           name: layout.title,
-          builder: (context) => _ContentPreview(
-            builder: builder,
-            layout: layout,
-          ),
+          builder: (context) =>
+              _ContentPreview(builder: builder, layout: layout),
         ),
     ];
   }
@@ -80,10 +80,7 @@ class _ContentPreview extends StatelessWidget {
   final ContentBuilder builder;
   final TypeDescriptor<LayoutConfiguration> layout;
 
-  const _ContentPreview({
-    required this.builder,
-    required this.layout,
-  });
+  const _ContentPreview({required this.builder, required this.layout});
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +97,15 @@ class _ContentPreview extends StatelessWidget {
       );
     }
 
-    return vyuh.content.buildContent(
-      context,
-      previewContent,
-      layout: previewLayout,
+    return Theme(
+      data: Theme.of(context),
+      child: Builder(
+        builder: (context) => vyuh.content.buildContent(
+          context,
+          previewContent,
+          layout: previewLayout,
+        ),
+      ),
     );
   }
 }

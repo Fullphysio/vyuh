@@ -1,8 +1,72 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 import 'package:vyuh_feature_auth/ui/auth_state_widget.dart';
+
+const emailControlName = 'email';
+const usernameControlName = 'username';
+const phoneControlName = 'phone';
+const otpControlName = 'otp';
+const passwordControlName = 'password';
+
+InputDecoration _authInputDecoration({
+  required String labelText,
+  Widget? suffixIcon,
+}) => InputDecoration(
+  labelText: labelText,
+  suffixIcon: suffixIcon,
+  border: const OutlineInputBorder(),
+);
+
+FormGroup emailPasswordAuthForm({String? email}) => FormGroup({
+  emailControlName: FormControl<String>(
+    value: email,
+    validators: [Validators.required, Validators.email],
+  ),
+  passwordControlName: FormControl<String>(validators: [Validators.required]),
+});
+
+FormGroup emailAuthForm({String? email}) => FormGroup({
+  emailControlName: FormControl<String>(
+    value: email,
+    validators: [Validators.required, Validators.email],
+  ),
+});
+
+FormGroup usernamePasswordAuthForm({String? username}) => FormGroup({
+  usernameControlName: FormControl<String>(
+    value: username,
+    validators: [Validators.required, Validators.minLength(3)],
+  ),
+  passwordControlName: FormControl<String>(validators: [Validators.required]),
+});
+
+FormGroup phoneOtpAuthForm() => FormGroup({
+  phoneControlName: FormControl<String>(
+    validators: [
+      Validators.required,
+      Validators.delegate(_phoneNumberValidator),
+    ],
+  ),
+  otpControlName: FormControl<String>(
+    validators: [
+      Validators.required,
+      Validators.minLength(6),
+      Validators.number(allowNegatives: false),
+    ],
+  ),
+});
+
+Map<String, dynamic>? _phoneNumberValidator(AbstractControl<dynamic> control) {
+  final value = control.value as String?;
+  if (value == null || value.isEmpty) {
+    return null;
+  }
+
+  return RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)
+      ? null
+      : const {'phoneNumber': true};
+}
 
 final class LoaderButton extends StatelessWidget {
   final String? title;
@@ -33,7 +97,8 @@ final class LoaderButton extends StatelessWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: Theme.of(context).tabBarTheme.indicatorColor,
-              ))
+              ),
+            )
           : icon,
       label: title == null ? const SizedBox.shrink() : Text(title!),
     );
@@ -44,22 +109,20 @@ final _whitespaceRegExp = RegExp(r'\s\b|\b\s');
 
 class EmailField extends StatelessWidget {
   final void Function() submit;
-  final String? email;
-  const EmailField({super.key, this.email, required this.submit});
+  const EmailField({super.key, required this.submit});
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      name: 'email',
-      initialValue: email,
-      decoration: const InputDecoration(labelText: 'Email'),
+    return _MaterialReactiveTextField(
+      formControlName: emailControlName,
+      decoration: _authInputDecoration(labelText: 'Email'),
       keyboardType: TextInputType.emailAddress,
       inputFormatters: [FilteringTextInputFormatter.deny(_whitespaceRegExp)],
-      autofillHints: [AutofillHints.email, AutofillHints.username],
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.email(),
-      ]),
+      autofillHints: const [AutofillHints.email, AutofillHints.username],
+      validationMessages: {
+        ValidationMessage.required: (_) => 'Email is required',
+        ValidationMessage.email: (_) => 'Enter a valid email address',
+      },
       onSubmitted: (_) => submit(),
     );
   }
@@ -67,89 +130,80 @@ class EmailField extends StatelessWidget {
 
 class UsernameField extends StatelessWidget {
   final void Function() submit;
-  final String? username;
-  const UsernameField({super.key, this.username, required this.submit});
+  const UsernameField({super.key, required this.submit});
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      name: 'username',
-      initialValue: username,
-      decoration: const InputDecoration(labelText: 'Username'),
+    return _MaterialReactiveTextField(
+      formControlName: usernameControlName,
+      decoration: _authInputDecoration(labelText: 'Username'),
       keyboardType: TextInputType.text,
       inputFormatters: [FilteringTextInputFormatter.deny(_whitespaceRegExp)],
-      autofillHints: [AutofillHints.username],
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.minLength(3,
-            errorText: 'Username must be at least 3 characters'),
-      ]),
+      autofillHints: const [AutofillHints.username],
+      validationMessages: {
+        ValidationMessage.required: (_) => 'Username is required',
+        ValidationMessage.minLength: (_) =>
+            'Username must be at least 3 characters',
+      },
       onSubmitted: (_) => submit(),
     );
   }
 }
 
 class PhoneInputField extends StatelessWidget {
-  final FormFieldValidator<String>? validator;
-  final InputDecoration? inputDecoration;
+  final String labelText;
   final void Function(BuildContext) submit;
 
   const PhoneInputField({
     super.key,
     required this.submit,
-    this.validator,
-    this.inputDecoration,
+    this.labelText = 'Phone Number',
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      name: 'phone',
-      decoration:
-          inputDecoration ?? const InputDecoration(labelText: 'Phone Number'),
+    return _MaterialReactiveTextField(
+      formControlName: phoneControlName,
+      decoration: _authInputDecoration(labelText: labelText),
       keyboardType: TextInputType.phone,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+]'))],
-      autofillHints: [
+      autofillHints: const [
         AutofillHints.telephoneNumber,
         AutofillHints.telephoneNumberLocal,
-        AutofillHints.telephoneNumberNational
+        AutofillHints.telephoneNumberNational,
       ],
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.phoneNumber(),
-        if (validator != null) validator!,
-      ]),
+      validationMessages: {
+        ValidationMessage.required: (_) => 'Phone number is required',
+        'phoneNumber': (_) => 'Enter a valid phone number',
+      },
       onSubmitted: (_) => submit(context),
     );
   }
 }
 
 class OtpInputField extends StatelessWidget {
-  final FormFieldValidator<String>? validator;
-  final InputDecoration? inputDecoration;
+  final String labelText;
   final void Function(BuildContext) submit;
 
   const OtpInputField({
     super.key,
     required this.submit,
-    this.inputDecoration,
-    this.validator,
+    this.labelText = 'OTP',
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      name: 'otp',
+    return _MaterialReactiveTextField(
+      formControlName: otpControlName,
       autofillHints: const [AutofillHints.oneTimeCode],
-      decoration: inputDecoration ?? const InputDecoration(labelText: 'OTP'),
+      decoration: _authInputDecoration(labelText: labelText),
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.minLength(6),
-        FormBuilderValidators.numeric(),
-        if (validator != null) validator!,
-      ]),
+      validationMessages: {
+        ValidationMessage.required: (_) => 'OTP is required',
+        ValidationMessage.minLength: (_) => 'OTP must be at least 6 digits',
+        ValidationMessage.number: (_) => 'OTP must contain only digits',
+      },
       onSubmitted: (_) => submit(context),
     );
   }
@@ -159,11 +213,12 @@ class PasswordField extends StatefulWidget {
   final bool showPasswordVisibilityToggle;
   final bool autofocus;
   final void Function() submit;
-  const PasswordField(
-      {super.key,
-      this.showPasswordVisibilityToggle = false,
-      this.autofocus = false,
-      required this.submit});
+  const PasswordField({
+    super.key,
+    this.showPasswordVisibilityToggle = false,
+    this.autofocus = false,
+    required this.submit,
+  });
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
@@ -174,24 +229,25 @@ class _PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      name: 'password',
+    return _MaterialReactiveTextField(
+      formControlName: passwordControlName,
       autofocus: widget.autofocus,
-      decoration: InputDecoration(
-          labelText: 'Password',
-          suffixIcon: widget.showPasswordVisibilityToggle
-              ? IconButton(
-                  icon: Icon(
-                      _showPassword ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () =>
-                      setState(() => _showPassword = !_showPassword),
-                )
-              : null),
+      decoration: _authInputDecoration(
+        labelText: 'Password',
+        suffixIcon: widget.showPasswordVisibilityToggle
+            ? IconButton(
+                icon: Icon(
+                  _showPassword ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () => setState(() => _showPassword = !_showPassword),
+              )
+            : null,
+      ),
       obscureText: !_showPassword,
       autofillHints: const [AutofillHints.password],
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-      ]),
+      validationMessages: {
+        ValidationMessage.required: (_) => 'Password is required',
+      },
       onSubmitted: (_) => widget.submit(),
     );
   }
@@ -215,11 +271,12 @@ class HintAction extends StatelessWidget {
       Text(label);
 
   static Widget defaultActionLabel(BuildContext context, String label) => Text(
-        label,
-        style: TextStyle(
-            color: Theme.of(context).colorScheme.secondary,
-            fontWeight: FontWeight.bold),
-      );
+    label,
+    style: TextStyle(
+      color: Theme.of(context).colorScheme.secondary,
+      fontWeight: FontWeight.bold,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -304,19 +361,82 @@ class ErrorText extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(
-          Icons.error,
-          color: theme.colorScheme.error,
-        ),
+        Icon(Icons.error, color: theme.colorScheme.error),
         const SizedBox(width: 8),
         Expanded(
           child: SelectableText(
             error.toString(),
-            style: theme.textTheme.bodyMedium
-                ?.apply(color: theme.colorScheme.error),
+            style: theme.textTheme.bodyMedium?.apply(
+              color: theme.colorScheme.error,
+            ),
           ),
         ),
       ],
     );
+  }
+}
+
+/// Reactive Forms owns validation and focus; Material UI owns the text widget.
+class _MaterialReactiveTextField
+    extends ReactiveFocusableFormField<String, String> {
+  _MaterialReactiveTextField({
+    required super.formControlName,
+    required InputDecoration decoration,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    Iterable<String>? autofillHints,
+    super.validationMessages,
+    bool obscureText = false,
+    bool autofocus = false,
+    void Function(FormControl<String>)? onSubmitted,
+  }) : super(
+         builder: (field) {
+           final state = field as _MaterialReactiveTextFieldState;
+           return TextField(
+             controller: state.controller,
+             focusNode: state.focusNode,
+             enabled: field.control.enabled,
+             decoration: decoration.copyWith(errorText: field.errorText),
+             keyboardType: keyboardType,
+             inputFormatters: inputFormatters,
+             autofillHints: autofillHints,
+             obscureText: obscureText,
+             autofocus: autofocus,
+             onChanged: field.didChange,
+             onSubmitted: (_) => onSubmitted?.call(field.control),
+           );
+         },
+       );
+
+  @override
+  ReactiveFormFieldState<String, String> createState() =>
+      _MaterialReactiveTextFieldState();
+}
+
+class _MaterialReactiveTextFieldState
+    extends ReactiveFocusableFormFieldState<String, String> {
+  final controller = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    controller.text = value ?? '';
+  }
+
+  @override
+  void onControlValueChanged(dynamic value) {
+    final text = value as String? ?? '';
+    if (controller.text != text) {
+      controller.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    }
+    super.onControlValueChanged(value);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

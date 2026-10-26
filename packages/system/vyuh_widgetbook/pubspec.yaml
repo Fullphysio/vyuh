@@ -1,7 +1,7 @@
 name: vyuh_widgetbook
 resolution: workspace
 description: Widgetbook implementation for previewing the various Content Items of Vyuh features
-version: 1.5.0
+version: 2.0.2
 homepage: https://vyuh.tech
 repository: https://github.com/vyuh-tech/vyuh/tree/main/packages/system/vyuh_widgetbook
 issue_tracker: https://github.com/vyuh-tech/vyuh/issues
@@ -16,17 +16,18 @@ topics:
   - preview
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
-  flutter: ">=3.10.0"
+  sdk: '>=3.12.0 <4.0.0'
+  flutter: '>=3.47.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  vyuh_core: ^1.55.0
-  vyuh_extension_content: ^1.32.0
+  vyuh_core: ^2.1.0
+  vyuh_extension_content: ^2.1.0
 
   widgetbook: ^3.10.2
 
+  material_ui: ^1.1.0
 dev_dependencies:
   flutter_lints: ^6.0.0
