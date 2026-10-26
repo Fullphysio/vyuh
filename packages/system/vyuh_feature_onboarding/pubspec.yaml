@@ -1,26 +1,27 @@
 name: vyuh_feature_onboarding
 resolution: workspace
 description: The Onboarding feature package for the Vyuh Framework
-version: 1.10.0
+version: 2.0.2
 homepage: https://vyuh.tech
 repository: https://github.com/vyuh-tech/vyuh
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
-  flutter: ">=1.17.0"
+  sdk: '>=3.12.0 <4.0.0'
+  flutter: '>=3.47.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  go_router: ^17.0.0
+  go_router: ^18.0.1
   json_annotation: ^4.8.1
   mobx: ^2.3.0+1
   flutter_mobx: ^2.2.0+2
-  flutter_sanity_portable_text: ^1.8.1
-  vyuh_core: ^1.55.0
-  vyuh_feature_system: ^1.47.0
-  vyuh_extension_content: ^1.32.0
+  flutter_sanity_portable_text: ^2.0.0
+  vyuh_core: ^2.1.0
+  vyuh_feature_system: ^2.0.2
+  vyuh_extension_content: ^2.1.0
 
+  material_ui: ^1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

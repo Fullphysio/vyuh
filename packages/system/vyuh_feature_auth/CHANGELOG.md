@@ -1,3 +1,32 @@
+## 3.0.3
+
+- Remove CDX dependencies and use Material UI input decorations directly.
+
+## 3.0.2
+
+ - **FEAT**(framework): harden feature lifecycle and shared capabilities.
+
+## 3.0.1
+
+ - **FIX**: align router dependencies with go_router 18.
+
+## 3.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**(auth): replace Flutter Form Builder with typed reactive forms.
+ - **FIX**(auth): preserve CDX outlined field decoration and validate phone and OTP values as strings.
+
+## 2.0.1
+
+ - **FIX**(vyuh_feature_auth): publish private CDX consumer to Vyuh registry.
+
+## 2.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**(ui): migrate Vyuh framework to Material UI.
+
 ## 1.25.0
 
 ## 1.24.0

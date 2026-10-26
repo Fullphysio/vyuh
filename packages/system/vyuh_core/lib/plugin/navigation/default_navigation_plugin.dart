@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_web_plugins/url_strategy.dart' as strategy;
 import 'package:go_router/go_router.dart' as g;
@@ -21,9 +21,9 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
     final bool urlReflectsImperativeAPIs = false,
     g.GoRouterRedirect? redirect,
   }) : super(
-          name: 'vyuh.plugin.navigation.default',
-          title: 'Default Navigation Plugin (GoRouter)',
-        ) {
+         name: 'vyuh.plugin.navigation.default',
+         title: 'Default Navigation Plugin (GoRouter)',
+       ) {
     if (urlReflectsImperativeAPIs) {
       enableURLReflectsImperativeAPIs();
     }
@@ -53,10 +53,11 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   }
 
   @override
-  void initRouter(
-      {String? initialLocation,
-      required List<g.RouteBase> routes,
-      required GlobalKey<NavigatorState> rootNavigatorKey}) {
+  void initRouter({
+    String? initialLocation,
+    required List<g.RouteBase> routes,
+    required GlobalKey<NavigatorState> rootNavigatorKey,
+  }) {
     if (_initialized) {
       throw StateError('Router already initialized');
     }
@@ -69,6 +70,7 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
         .expand((p) => p.observers)
         .toList();
 
+    _router.dispose();
     _router = GoRouter.routingConfig(
       initialLocation: initialLocation ?? '/',
       routingConfig: _routingConfig,
@@ -101,7 +103,8 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   void appendInitialRoutes(List<g.RouteBase> routes) {
     if (_initialized) {
       throw StateError(
-          'Cannot append initial routes after Router is initialized');
+        'Cannot append initial routes after Router is initialized',
+      );
     }
 
     _initialRoutes.addAll(routes);
@@ -111,34 +114,31 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   appendRoutes(List<g.RouteBase> routes) {
     final currentRoutes = _routingConfig.value.routes;
 
-    replaceRoutes([
-      ...currentRoutes,
-      ...routes,
-    ]);
+    replaceRoutes([...currentRoutes, ...routes]);
   }
 
   List<g.RouteBase> _finalizeRoutes(List<g.RouteBase> routes) {
     if (includeFallbackRoute) {
-      final fallbackRoutes = routes.where((r) {
-        final isFallbackRoute = r == NavigationPlugin.fallbackRoute;
-        final hasFallbackPath =
-            r is GoRoute && r.path == NavigationPlugin.fallbackRoute.path;
-        return isFallbackRoute || hasFallbackPath;
-      }).toList(growable: false);
+      final fallbackRoutes = routes
+          .where((r) {
+            final isFallbackRoute = r == NavigationPlugin.fallbackRoute;
+            final hasFallbackPath =
+                r is GoRoute && r.path == NavigationPlugin.fallbackRoute.path;
+            return isFallbackRoute || hasFallbackPath;
+          })
+          .toList(growable: false);
 
       if (fallbackRoutes.isNotEmpty) {
         vyuh.log.warn(
-            ('We found one or more fallback Routes "/:path(.*)", which will be removed'));
+          ('We found one or more fallback Routes "/:path(.*)", which will be removed'),
+        );
       }
 
       for (final route in fallbackRoutes) {
         routes.remove(route);
       }
 
-      return [
-        ...routes,
-        NavigationPlugin.fallbackRoute,
-      ];
+      return [...routes, NavigationPlugin.fallbackRoute];
     }
 
     return routes;
@@ -156,6 +156,7 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   @override
   Future<void> dispose() {
     if (_initialized) {
+      _router.dispose();
       _routingConfig.dispose();
       _router = GoRouter(routes: []);
       _initialRoutes.clear();
@@ -171,10 +172,12 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   }
 
   @override
-  void goNamed(String name,
-      {Map<String, String> pathParameters = const <String, String>{},
-      Map<String, dynamic> queryParameters = const <String, dynamic>{},
-      Object? extra}) {
+  void goNamed(
+    String name, {
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, dynamic> queryParameters = const <String, dynamic>{},
+    Object? extra,
+  }) {
     instance.goNamed(
       name,
       pathParameters: pathParameters,
@@ -194,10 +197,12 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   }
 
   @override
-  Future<T?> pushNamed<T extends Object?>(String name,
-      {Map<String, String> pathParameters = const <String, String>{},
-      Map<String, dynamic> queryParameters = const <String, dynamic>{},
-      Object? extra}) {
+  Future<T?> pushNamed<T extends Object?>(
+    String name, {
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, dynamic> queryParameters = const <String, dynamic>{},
+    Object? extra,
+  }) {
     return instance.pushNamed(
       name,
       pathParameters: pathParameters,
@@ -207,16 +212,20 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   }
 
   @override
-  Future<T?> pushReplacement<T extends Object?>(String location,
-      {Object? extra}) {
+  Future<T?> pushReplacement<T extends Object?>(
+    String location, {
+    Object? extra,
+  }) {
     return instance.pushReplacement(location, extra: extra);
   }
 
   @override
-  Future<T?> pushReplacementNamed<T extends Object?>(String name,
-      {Map<String, String> pathParameters = const <String, String>{},
-      Map<String, dynamic> queryParameters = const <String, dynamic>{},
-      Object? extra}) {
+  Future<T?> pushReplacementNamed<T extends Object?>(
+    String name, {
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, dynamic> queryParameters = const <String, dynamic>{},
+    Object? extra,
+  }) {
     return instance.pushReplacementNamed(
       name,
       pathParameters: pathParameters,
@@ -231,10 +240,12 @@ final class DefaultNavigationPlugin extends NavigationPlugin {
   }
 
   @override
-  Future<T?> replaceNamed<T extends Object?>(String name,
-      {Map<String, String> pathParameters = const <String, String>{},
-      Map<String, dynamic> queryParameters = const <String, dynamic>{},
-      Object? extra}) {
+  Future<T?> replaceNamed<T extends Object?>(
+    String name, {
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, dynamic> queryParameters = const <String, dynamic>{},
+    Object? extra,
+  }) {
     return instance.replaceNamed(
       name,
       pathParameters: pathParameters,
@@ -248,9 +259,11 @@ final class RoutingConfigNotifier extends ValueNotifier<g.RoutingConfig> {
   final g.GoRouterRedirect? redirect;
 
   RoutingConfigNotifier(List<g.RouteBase> routes, {this.redirect})
-      : super(redirect == null
+    : super(
+        redirect == null
             ? g.RoutingConfig(routes: routes)
-            : g.RoutingConfig(routes: routes, redirect: redirect));
+            : g.RoutingConfig(routes: routes, redirect: redirect),
+      );
 
   void setRoutes(List<g.RouteBase> routes) {
     value = redirect == null

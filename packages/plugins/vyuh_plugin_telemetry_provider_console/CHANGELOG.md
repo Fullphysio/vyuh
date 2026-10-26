@@ -1,3 +1,19 @@
+## 1.4.4
+
+ - Update a dependency to the latest release.
+
+## 1.4.3
+
+ - **FIX**: unblock complete package publication with stable release tooling.
+
+## 1.4.2
+
+ - Update a dependency to the latest release.
+
+## 1.4.1
+
+ - Update a dependency to the latest release.
+
 ## 1.4.0
 
  - **FEAT**: add support for lazy-loaded features with deferred initialization and web code splitting ([#55](https://github.com/vyuh-tech/vyuh/issues/55)).

@@ -1,3 +1,25 @@
+## 0.2.0
+
+ - **FEAT**(cli): scaffold modular Apps features and plugins with optional CMS.
+
+## 0.1.3
+
+ - **FEAT**(framework): harden feature lifecycle and shared capabilities.
+
+## 0.1.2
+
+ - **FIX**: unblock complete package publication with stable release tooling.
+
+## 0.1.1
+
+ - **FIX**: align router dependencies with go_router 18.
+
+## 0.1.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**(ui): migrate Vyuh framework to Material UI.
+
 ## 0.0.14
 
  - **FEAT**: add support for lazy-loaded features with deferred initialization and web code splitting ([#55](https://github.com/vyuh-tech/vyuh/issues/55)).

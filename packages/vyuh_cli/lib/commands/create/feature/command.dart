@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:mason/mason.dart';
 
 import 'package:vyuh_cli/commands/create/base_create_command.dart';
 import 'package:vyuh_cli/commands/create/feature/template.dart';
@@ -16,7 +19,11 @@ final class CreateFeatureCommand extends BaseCreateCommand {
   @override
   void setupArgParser() {
     super.setupArgParser();
-    // Add feature-specific arguments here if needed
+    argParser
+      ..addOption('title', help: 'Feature display title.')
+      ..addOption('description',
+          help: 'What the feature owns.', defaultsTo: 'A modular Vyuh feature.')
+      ..addOption('route', help: 'Entry route (defaults to /<feature-name>).');
   }
 
   String get featureName => argResults.rest.first;
@@ -62,6 +69,10 @@ final class CreateFeatureCommand extends BaseCreateCommand {
   @override
   void validateArgs() {
     _validateFeatureName(argResults.rest);
+    final route = argResults['route'] as String?;
+    if (route != null && !RegExp(r'^/(?:[a-zA-Z0-9_-]+/?)*$').hasMatch(route)) {
+      usageException('Use an absolute route path, such as /catalog.');
+    }
   }
 
   @override
@@ -77,6 +88,11 @@ final class CreateFeatureCommand extends BaseCreateCommand {
   Map<String, dynamic> getTemplateVars() {
     final vars = super.getTemplateVars();
     vars['name'] = featureName;
+    vars['title_literal'] =
+        jsonEncode(argResults['title'] ?? featureName.titleCase);
+    vars['description_literal'] = jsonEncode(argResults['description']);
+    vars['route_literal'] = jsonEncode(argResults['route'] ??
+        '/${featureName.replaceFirst(RegExp(r'^feature_'), '')}');
     return vars;
   }
 }

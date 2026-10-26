@@ -1,3 +1,17 @@
+## 2.0.2
+
+ - **FEAT**(framework): harden feature lifecycle and shared capabilities.
+
+## 2.0.1
+
+ - **FIX**: align router dependencies with go_router 18.
+
+## 2.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**(ui): migrate Vyuh framework to Material UI.
+
 ## 1.47.0
 
  - **FEAT**(vyuh_feature_system): ThemeService self-resolves system mode against OS brightness.

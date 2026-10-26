@@ -1,3 +1,15 @@
+## 1.6.3
+
+ - **FEAT**(framework): harden feature lifecycle and shared capabilities.
+
+## 1.6.2
+
+ - Update a dependency to the latest release.
+
+## 1.6.1
+
+ - Update a dependency to the latest release.
+
 ## 1.6.0
 
  - **FEAT**: add support for lazy-loaded features with deferred initialization and web code splitting ([#55](https://github.com/vyuh-tech/vyuh/issues/55)).
